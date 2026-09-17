@@ -6,241 +6,317 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Hove RFC - Match Action Logger</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Phosphor Icons for professional sports icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Chart.js for the match timeline graph -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <style>
-        /* Custom styles inspired by professional sports performance apps */
+        /* High-end sports app styling */
         :root {
-            --primary: #c8102e; 
-            --bg-dark: #0f172a; /* Rich slate dark for a professional app feel */
-            --bg-panel: #1e293b;
-            --text-light: #f8fafc;
-            --text-muted: #94a3b8;
+            --bg-base: #09090b; /* Zinc 950 - Very dark, sleek background */
+            --bg-panel: #18181b; /* Zinc 900 */
+            --bg-surface: #27272a; /* Zinc 800 */
+            --text-main: #f4f4f5;
+            --text-muted: #a1a1aa;
+            
+            /* Semantic Colors for Stats */
+            --color-score: #10b981; /* Emerald */
+            --color-score-bad: #ef4444; /* Red */
+            --color-attack: #3b82f6; /* Blue */
+            --color-defence: #8b5cf6; /* Violet */
+            --color-setpiece: #f59e0b; /* Amber */
+            --color-error: #f43f5e; /* Rose */
+            --color-neutral: #71717a; /* Zinc 500 */
         }
 
         body {
-            background-color: var(--bg-dark);
-            color: var(--text-light);
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             margin: 0;
             padding: 0;
             display: flex;
             flex-direction: column;
             height: 100vh;
             overflow: hidden; 
-            overscroll-behavior-y: none; /* Prevents iOS pull-to-refresh bouncing */
-            -webkit-user-select: none; /* Prevents text highlighting on rapid tapping */
+            overscroll-behavior-y: none;
+            -webkit-user-select: none;
             user-select: none;
         }
 
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--bg-dark); }
-        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #52525b; }
 
-        /* Professional 3D touch targets for iPad */
+        /* Professional flat-UI tactile buttons */
         .stat-btn {
             transition: all 0.05s ease-in-out;
-            touch-action: manipulation; /* Essential for removing touch delays on mobile/tablet */
+            touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
-            min-height: 80px; /* Chunky touch targets */
-            border-bottom-width: 4px;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            min-height: 72px; 
             border-radius: 0.5rem;
             font-weight: 600;
-            font-size: 0.875rem;
+            font-size: 0.8rem;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
             padding: 0.5rem;
             line-height: 1.2;
+            gap: 0.25rem;
+            color: white;
+            border-bottom: 4px solid rgba(0,0,0,0.3);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
         }
+        .stat-btn i { font-size: 1.5rem; margin-bottom: 2px; }
         .stat-btn:active {
             transform: translateY(4px);
             border-bottom-width: 0px;
-            margin-bottom: 4px; /* Keeps layout stable when pressed */
+            margin-bottom: 4px;
             box-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
 
-        /* Specific Button Gradients & Colors */
-        .btn-attack { background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%); border-color: #1e40af; color: white; }
-        .btn-defence { background: linear-gradient(180deg, #10b981 0%, #059669 100%); border-color: #047857; color: white; }
-        .btn-negative { background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%); border-color: #991b1b; color: white; }
-        .btn-setpiece { background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%); border-color: #b45309; color: white; }
-        .btn-neutral { background: linear-gradient(180deg, #64748b 0%, #475569 100%); border-color: #334155; color: white; }
+        /* Thematic Button Colors */
+        .btn-score { background-color: var(--color-score); }
+        .btn-score-bad { background-color: var(--color-score-bad); }
+        .btn-attack { background-color: var(--color-attack); }
+        .btn-defence { background-color: var(--color-defence); }
+        .btn-setpiece { background-color: var(--color-setpiece); }
+        .btn-error { background-color: var(--color-error); }
+        .btn-neutral { background-color: var(--color-neutral); }
+        
+        /* Specific Overrides */
+        .btn-yellow-card { background-color: #eab308; color: #1c1917; border-bottom-color: #a16207;} /* High contrast dark text on yellow */
 
-        .timeline-entry { animation: fadeIn 0.3s ease-out forwards; }
+        .timeline-entry { animation: fadeIn 0.2s ease-out forwards; }
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateX(10px); }
+            from { opacity: 0; transform: translateX(5px); }
             to { opacity: 1; transform: translateX(0); }
         }
 
         .pulse { animation: pulse-animation 2s infinite; }
         @keyframes pulse-animation {
-            0% { transform: scale(1); text-shadow: 0 0 0 rgba(34, 197, 94, 0.7); }
-            50% { transform: scale(1.05); text-shadow: 0 0 10px rgba(34, 197, 94, 0.8); }
-            100% { transform: scale(1); text-shadow: 0 0 0 rgba(34, 197, 94, 0); }
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
         }
         
-        /* Input overrides to allow typing */
         input { user-select: auto; -webkit-user-select: auto; }
+        
+        /* Modal animations */
+        .modal-overlay { backdrop-filter: blur(4px); transition: opacity 0.3s; }
+        
+        /* Category Headers */
+        .cat-header {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .cat-header::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background-color: var(--bg-surface);
+        }
     </style>
 </head>
 <body class="flex flex-col h-screen">
 
     <!-- Header -->
-    <header class="bg-[#0f172a] border-b border-slate-700 p-3 lg:p-4 flex flex-wrap justify-between items-center shadow-lg z-20 shrink-0 bg-opacity-95 backdrop-blur-sm gap-2">
-        <div class="flex items-center gap-4">
-            <!-- Logo with fallback to 'H' -->
+    <header class="bg-[#18181b] border-b border-[#27272a] p-3 lg:px-4 lg:py-3 flex flex-wrap justify-between items-center z-20 shrink-0 shadow-md gap-2">
+        <div class="flex items-center gap-3">
             <img src="Hove rfc new (1).png" alt="Hove RFC" class="h-10 lg:h-12 w-auto object-contain" 
-                 onerror="this.onerror=null; this.outerHTML='<div class=\'w-10 h-10 lg:w-12 lg:h-12 bg-red-600 rounded flex items-center justify-center font-bold text-white text-xl\'>H</div>'">
-            <div>
-                <h1 class="text-lg lg:text-xl font-bold tracking-tight text-white hidden sm:block">Hove RFC First XV</h1>
-                <input type="text" id="opponentInput" placeholder="vs. Opponent" class="bg-slate-800 border border-slate-600 rounded px-2 py-1 text-sm text-white mt-1 w-40 focus:outline-none focus:border-blue-500 transition-colors">
+                 onerror="this.onerror=null; this.outerHTML='<div class=\'w-10 h-10 lg:w-12 lg:h-12 bg-blue-600 rounded flex items-center justify-center font-bold text-white text-xl\'>H</div>'">
+            <div class="flex flex-col justify-center">
+                <h1 class="text-base lg:text-lg font-bold tracking-tight text-white leading-tight">Hove RFC 1st XV</h1>
+                <input type="text" id="opponentInput" placeholder="vs. Opponent" class="bg-[#27272a] border border-[#3f3f46] rounded px-2 py-0.5 text-xs text-white mt-0.5 w-40 focus:outline-none focus:border-blue-500 transition-colors placeholder-gray-400">
             </div>
         </div>
 
-        <div class="flex items-center gap-3">
-            <button onclick="clearDataConfirm()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-sm transition-colors border border-slate-600">
-                Reset Data
+        <div class="flex items-center gap-2 lg:gap-3">
+            <button onclick="openGraphModal()" class="px-3 py-2 bg-[#27272a] hover:bg-[#3f3f46] text-blue-400 rounded text-xs lg:text-sm transition-colors border border-[#3f3f46] flex items-center gap-1 font-semibold">
+                <i class="ph ph-chart-line-up text-lg"></i> <span class="hidden sm:inline">Match Graph</span>
             </button>
-            <button onclick="exportCSV()" class="px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded font-bold shadow transition-colors flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                Export CSV
+            <button onclick="exportCSV()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold shadow transition-colors flex items-center gap-1 text-xs lg:text-sm">
+                <i class="ph ph-download-simple text-lg"></i> <span class="hidden sm:inline">Export</span>
+            </button>
+            <button onclick="clearDataConfirm()" class="px-3 py-2 bg-rose-900/50 hover:bg-rose-800/50 text-rose-300 rounded text-xs lg:text-sm transition-colors border border-rose-900/50 flex items-center gap-1">
+                <i class="ph ph-trash text-lg"></i>
             </button>
         </div>
     </header>
 
     <!-- Main Content Area -->
-    <main class="flex-1 flex flex-col lg:flex-row overflow-hidden bg-[#0b1120]">
+    <main class="flex-1 flex flex-col lg:flex-row overflow-hidden bg-black">
         
         <!-- Left Side: Logger Panel -->
-        <div class="flex-1 p-4 overflow-y-auto lg:border-r border-slate-800 flex flex-col gap-6">
+        <div class="flex-1 p-3 lg:p-4 overflow-y-auto lg:border-r border-[#27272a] flex flex-col gap-4">
             
             <!-- Top Controls (Timer & Half) -->
-            <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-inner flex flex-wrap items-center justify-between gap-4">
+            <div class="bg-[#18181b] p-3 rounded-xl border border-[#27272a] flex flex-wrap items-center justify-between gap-4">
                 
-                <!-- Timer Block -->
                 <div class="flex items-center gap-4">
                     <div class="flex flex-col">
-                        <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-1">Match Time</span>
-                        <div id="timerDisplay" class="text-4xl font-mono font-bold text-white tracking-wider w-24">00:00</div>
+                        <div id="timerDisplay" class="text-4xl lg:text-5xl font-mono font-bold text-white tracking-wider w-[120px] leading-none">00:00</div>
                     </div>
-                    <div class="flex flex-col gap-2">
-                        <button id="startBtn" onclick="startTimer()" class="px-4 py-1.5 bg-green-600 text-white rounded shadow text-sm font-bold hover:bg-green-500">START</button>
-                        <button id="pauseBtn" onclick="pauseTimer()" class="px-4 py-1.5 bg-yellow-600 text-white rounded shadow text-sm font-bold hover:bg-yellow-500 hidden">PAUSE</button>
+                    <div class="flex flex-col gap-1.5">
+                        <button id="startBtn" onclick="startTimer()" class="px-4 py-1.5 bg-emerald-600 text-white rounded shadow text-sm font-bold hover:bg-emerald-500 flex items-center justify-center gap-1">
+                            <i class="ph-fill ph-play"></i> START
+                        </button>
+                        <button id="pauseBtn" onclick="pauseTimer()" class="px-4 py-1.5 bg-amber-600 text-white rounded shadow text-sm font-bold hover:bg-amber-500 hidden flex items-center justify-center gap-1">
+                            <i class="ph-fill ph-pause"></i> PAUSE
+                        </button>
                     </div>
                 </div>
 
-                <!-- Status & Wake Lock -->
                 <div class="flex flex-col items-center">
-                    <div class="text-sm text-slate-400 mb-1">Status</div>
-                    <div class="flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-full border border-slate-700">
-                        <div id="statusIndicator" class="font-bold text-red-500 text-sm">PAUSED</div>
-                        <span id="wakeLockIndicator" class="hidden flex items-center text-green-400 ml-2 text-xs bg-green-900/40 px-2 py-0.5 rounded-full" title="Screen Lock Active">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                            Locked ON
+                    <div class="flex items-center gap-2 bg-[#09090b] px-3 py-1.5 rounded-md border border-[#27272a]">
+                        <div id="statusIndicator" class="font-bold text-rose-500 text-sm flex items-center gap-1">
+                            <i class="ph-fill ph-stop-circle"></i> PAUSED
+                        </div>
+                        <span id="wakeLockIndicator" class="hidden flex items-center text-emerald-400 ml-1 text-xs bg-emerald-900/30 px-1.5 py-0.5 rounded" title="Screen Lock Active">
+                            <i class="ph-fill ph-lock-key mr-1"></i> Lock ON
                         </span>
                     </div>
                 </div>
 
-                <!-- Half Selector -->
                 <div class="flex flex-col">
-                    <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-1 text-center">Period</span>
-                    <div class="flex bg-slate-900 rounded-lg p-1 border border-slate-700">
-                        <button id="half1Btn" onclick="setHalf(1)" class="px-4 py-1.5 rounded bg-slate-700 text-white text-sm font-bold shadow-sm transition-colors">1st Half</button>
-                        <button id="half2Btn" onclick="setHalf(2)" class="px-4 py-1.5 rounded text-slate-400 text-sm font-bold hover:text-white transition-colors">2nd Half</button>
+                    <div class="flex bg-[#09090b] rounded-lg p-1 border border-[#27272a]">
+                        <button id="half1Btn" onclick="setHalf(1)" class="px-4 py-1.5 rounded bg-[#27272a] text-white text-sm font-bold shadow-sm transition-colors">1st H</button>
+                        <button id="half2Btn" onclick="setHalf(2)" class="px-4 py-1.5 rounded text-[#a1a1aa] text-sm font-bold hover:text-white transition-colors">2nd H</button>
                     </div>
                 </div>
             </div>
 
-            <!-- Stat Buttons Grid -->
-            <div class="space-y-6">
-                <!-- Attack Stats -->
+            <!-- Stat Buttons Area - Organized for speed -->
+            <div class="space-y-4 flex-1">
+                
+                <!-- ROW 1: SCORING (Most Important) -->
                 <div>
-                    <h2 class="text-sm font-bold text-slate-400 mb-3 border-b border-slate-700 pb-1 uppercase tracking-wider flex items-center gap-2">
-                        <div class="w-2 h-2 rounded-full bg-blue-500"></div> Attack / Possession
-                    </h2>
-                    <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-                        <button onclick="logEvent('Try')" class="stat-btn btn-attack">Try Scored</button>
-                        <button onclick="logEvent('Clean Break')" class="stat-btn btn-attack">Clean Break</button>
-                        <button onclick="logEvent('Defender Beaten')" class="stat-btn btn-attack">Defender Beaten</button>
-                        <button onclick="logEvent('Offload')" class="stat-btn btn-attack">Offload</button>
-                        <button onclick="logEvent('Kick in Play')" class="stat-btn btn-attack">Kick in Play</button>
-                        <button onclick="logEvent('Handling Error')" class="stat-btn btn-negative">Handling Error</button>
-                        <button onclick="logEvent('Turnover Lost')" class="stat-btn btn-negative">Turnover Lost</button>
+                    <div class="cat-header"><i class="ph-fill ph-star text-emerald-500"></i> Scoring</div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="logEvent('Try Scored')" class="stat-btn btn-score"><i class="ph-fill ph-rugby"></i>Try Scored</button>
+                        <button onclick="logEvent('Try Converted')" class="stat-btn btn-score"><i class="ph-fill ph-check-circle"></i>Try Converted</button>
+                        <button onclick="logEvent('Try Conceded')" class="stat-btn btn-score-bad"><i class="ph-fill ph-warning-circle"></i>Try Conceded</button>
                     </div>
                 </div>
 
-                <!-- Defence Stats -->
-                <div>
-                    <h2 class="text-sm font-bold text-slate-400 mb-3 border-b border-slate-700 pb-1 uppercase tracking-wider flex items-center gap-2">
-                        <div class="w-2 h-2 rounded-full bg-emerald-500"></div> Defence
-                    </h2>
-                    <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-                        <button onclick="logEvent('Tackle Made')" class="stat-btn btn-defence">Tackle Made</button>
-                        <button onclick="logEvent('Dominant Tackle')" class="stat-btn btn-defence">Dominant Tackle</button>
-                        <button onclick="logEvent('Turnover Won')" class="stat-btn btn-defence">Turnover Won</button>
-                        <button onclick="logEvent('Missed Tackle')" class="stat-btn btn-negative">Missed Tackle</button>
-                        <button onclick="logEvent('Penalty Conceded')" class="stat-btn btn-negative">Penalty Conceded</button>
+                <!-- ROW 2: ATTACK & DEFENCE POSITIVES -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <div class="cat-header"><i class="ph-fill ph-sword text-blue-500"></i> Attack & Go-Forward</div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="logEvent('Clean Break')" class="stat-btn btn-attack"><i class="ph-fill ph-lightning"></i>Clean Break</button>
+                            <button onclick="logEvent('Defender Beaten')" class="stat-btn btn-attack"><i class="ph-fill ph-person-simple-run"></i>Def Beaten</button>
+                            <button onclick="logEvent('Offload')" class="stat-btn btn-attack"><i class="ph-fill ph-hands-clapping"></i>Offload</button>
+                            <button onclick="logEvent('Kick in Play')" class="stat-btn btn-attack"><i class="ph-fill ph-sneaker-move"></i>Kick In Play</button>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="cat-header"><i class="ph-fill ph-shield text-violet-500"></i> Defence Positives</div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="logEvent('Tackle Made')" class="stat-btn btn-defence"><i class="ph-fill ph-users-three"></i>Tackle Made</button>
+                            <button onclick="logEvent('Dominant Tackle')" class="stat-btn btn-defence"><i class="ph-fill ph-barbell"></i>Dominant Hit</button>
+                            <button onclick="logEvent('Turnover Won')" class="stat-btn btn-score"><i class="ph-fill ph-arrows-merge"></i>Turnover Won</button>
+                            <button onclick="logEvent('Penalty Won')" class="stat-btn btn-score"><i class="ph-fill ph-whistle"></i>Penalty Won</button>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Set Piece & Discipline -->
-                <div>
-                    <h2 class="text-sm font-bold text-slate-400 mb-3 border-b border-slate-700 pb-1 uppercase tracking-wider flex items-center gap-2">
-                        <div class="w-2 h-2 rounded-full bg-amber-500"></div> Set Piece & Game
-                    </h2>
-                    <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-                        <button onclick="logEvent('Scrum Won')" class="stat-btn btn-setpiece">Scrum Won</button>
-                        <button onclick="logEvent('Lineout Won')" class="stat-btn btn-setpiece">Lineout Won</button>
-                        <button onclick="logEvent('Scrum Lost')" class="stat-btn btn-negative">Scrum Lost</button>
-                        <button onclick="logEvent('Lineout Lost')" class="stat-btn btn-negative">Lineout Lost</button>
-                        <button onclick="logEvent('Penalty Won')" class="stat-btn btn-defence">Penalty Won</button>
-                        <button onclick="logEvent('Yellow Card')" class="stat-btn btn-negative !bg-yellow-500 !border-yellow-700 text-black">Yellow Card</button>
-                        <button onclick="logEvent('Red Card')" class="stat-btn btn-negative">Red Card</button>
-                        <button onclick="logEvent('Substitution')" class="stat-btn btn-neutral">Substitution</button>
+                <!-- ROW 3: ERRORS & SET PIECE -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <div class="cat-header"><i class="ph-fill ph-x-circle text-rose-500"></i> Errors & Negatives</div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="logEvent('Missed Tackle')" class="stat-btn btn-error"><i class="ph-fill ph-user-minus"></i>Missed Tackle</button>
+                            <button onclick="logEvent('Handling Error')" class="stat-btn btn-error"><i class="ph-fill ph-hand-x"></i>Handling Error</button>
+                            <button onclick="logEvent('Turnover Lost')" class="stat-btn btn-error"><i class="ph-fill ph-arrows-split"></i>Turnover Lost</button>
+                            <button onclick="logEvent('Penalty Conceded')" class="stat-btn btn-error"><i class="ph-fill ph-whistle"></i>Pen Conceded</button>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="cat-header"><i class="ph-fill ph-intersect text-amber-500"></i> Set Piece & Game</div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="logEvent('Scrum Won')" class="stat-btn btn-setpiece"><i class="ph-fill ph-users-four"></i>Scrum Won</button>
+                            <button onclick="logEvent('Lineout Won')" class="stat-btn btn-setpiece"><i class="ph-fill ph-hands-raised"></i>Lineout Won</button>
+                            <button onclick="logEvent('Scrum Lost')" class="stat-btn btn-error"><i class="ph-fill ph-users-four"></i>Scrum Lost</button>
+                            <button onclick="logEvent('Lineout Lost')" class="stat-btn btn-error"><i class="ph-fill ph-hands-raised"></i>Lineout Lost</button>
+                            <button onclick="logEvent('Yellow Card')" class="stat-btn btn-yellow-card"><i class="ph-fill ph-rectangle"></i>Yellow Card</button>
+                            <button onclick="logEvent('Red Card')" class="stat-btn btn-error"><i class="ph-fill ph-rectangle"></i>Red Card</button>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Custom Event Entry -->
-            <div class="mt-auto pt-4">
+            <div class="mt-2 shrink-0">
                 <form id="customEventForm" onsubmit="logCustomEvent(event)" class="flex gap-2">
-                    <input type="text" id="customEventInput" placeholder="Log specific action or player note..." class="flex-1 bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 text-sm">
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded-lg transition-colors border border-blue-700 shadow">
-                        Log
+                    <input type="text" id="customEventInput" placeholder="Log sub, player note, or custom action..." class="flex-1 bg-[#18181b] border border-[#3f3f46] rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-blue-500 text-sm placeholder-[#71717a]">
+                    <button type="submit" class="bg-[#3f3f46] hover:bg-[#52525b] text-white font-semibold py-2.5 px-5 rounded-lg transition-colors border border-[#52525b] flex items-center gap-1 text-sm">
+                        <i class="ph-fill ph-pencil-simple"></i> Add
                     </button>
                 </form>
             </div>
         </div>
 
         <!-- Right Side: Timeline Sidebar -->
-        <div class="w-full lg:w-96 bg-[#131c2e] border-l border-slate-800 flex flex-col shrink-0 h-64 lg:h-auto">
-            <div class="p-4 bg-slate-900 border-b border-slate-800 shrink-0">
-                <h2 class="text-lg font-bold text-white">Event Timeline</h2>
-                <div class="text-xs text-slate-400 flex justify-between mt-1">
-                    <span>Recent actions</span>
-                    <span id="totalEvents">0 Events</span>
-                </div>
+        <div class="w-full lg:w-80 xl:w-96 bg-[#18181b] border-l border-[#27272a] flex flex-col shrink-0 h-48 lg:h-auto">
+            <div class="p-3 bg-[#09090b] border-b border-[#27272a] shrink-0 flex justify-between items-center">
+                <h2 class="text-sm font-bold text-white flex items-center gap-2">
+                    <i class="ph-fill ph-clock-counter-clockwise text-blue-500"></i> Match Timeline
+                </h2>
+                <span id="totalEvents" class="text-xs bg-[#27272a] px-2 py-1 rounded text-[#a1a1aa] font-mono">0</span>
             </div>
-            <div id="timelineContainer" class="flex-1 overflow-y-auto p-4 space-y-3">
+            <div id="timelineContainer" class="flex-1 overflow-y-auto p-3 space-y-2">
                 <!-- Events will be injected here -->
-                <div id="emptyTimelineMsg" class="text-center text-slate-500 text-sm mt-10">
-                    No events logged yet.<br>Start the timer and tap a button.
+                <div id="emptyTimelineMsg" class="text-center text-[#71717a] text-sm mt-8 flex flex-col items-center gap-2">
+                    <i class="ph ph-clipboard-text text-3xl"></i>
+                    No events logged.<br>Hit START and tag an action.
                 </div>
             </div>
         </div>
     </main>
 
+    <!-- Modal for Match Graph -->
+    <div id="graphModal" class="hidden modal-overlay fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 lg:p-8">
+        <div class="bg-[#18181b] border border-[#3f3f46] rounded-xl p-4 lg:p-6 w-full max-w-5xl h-[80vh] flex flex-col shadow-2xl">
+            <div class="flex justify-between items-center mb-4 shrink-0">
+                <div>
+                    <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                        <i class="ph-fill ph-chart-line-up text-blue-500"></i> Match Timeline Graph
+                    </h3>
+                    <p class="text-xs text-[#a1a1aa] mt-1">Visual representation of match momentum and events.</p>
+                </div>
+                <button onclick="closeGraphModal()" class="p-2 bg-[#27272a] hover:bg-[#3f3f46] text-white rounded-lg transition">
+                    <i class="ph-bold ph-x"></i>
+                </button>
+            </div>
+            <!-- Canvas Container -->
+            <div class="flex-1 relative w-full h-full min-h-[300px] bg-[#09090b] rounded-lg border border-[#27272a] p-2">
+                <canvas id="matchGraph"></canvas>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal for Confirm Reset -->
-    <div id="confirmModal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
-        <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 max-w-sm w-full shadow-2xl">
-            <h3 class="text-lg font-bold text-white mb-2">Reset All Data?</h3>
-            <p class="text-slate-400 text-sm mb-6">This will clear the timeline, reset the timer, and delete saved local data. Make sure you have exported your CSV first!</p>
+    <div id="confirmModal" class="hidden modal-overlay fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+        <div class="bg-[#18181b] border border-[#3f3f46] rounded-xl p-6 max-w-sm w-full shadow-2xl">
+            <h3 class="text-lg font-bold text-white mb-2 flex items-center gap-2">
+                <i class="ph-fill ph-warning text-rose-500"></i> Reset All Data?
+            </h3>
+            <p class="text-[#a1a1aa] text-sm mb-6">This will clear the timeline, reset the timer, and delete saved local data. Make sure you exported your CSV first!</p>
             <div class="flex justify-end gap-3">
-                <button onclick="closeConfirmModal()" class="px-4 py-2 bg-slate-700 text-white rounded hover:bg-slate-600 transition">Cancel</button>
-                <button onclick="executeClearData()" class="px-4 py-2 bg-red-600 text-white font-bold rounded hover:bg-red-500 transition shadow">Yes, Reset</button>
+                <button onclick="closeConfirmModal()" class="px-4 py-2 bg-[#27272a] text-white rounded font-medium hover:bg-[#3f3f46] transition">Cancel</button>
+                <button onclick="executeClearData()" class="px-4 py-2 bg-rose-600 text-white font-bold rounded hover:bg-rose-500 transition shadow">Yes, Reset</button>
             </div>
         </div>
     </div>
@@ -253,6 +329,7 @@
         let currentHalf = 1;
         let events = [];
         let wakeLock = null;
+        let chartInstance = null; // Holds the Chart.js instance
 
         // --- DOM Elements ---
         const timerDisplay = document.getElementById('timerDisplay');
@@ -266,6 +343,7 @@
         const half1Btn = document.getElementById('half1Btn');
         const half2Btn = document.getElementById('half2Btn');
         const opponentInput = document.getElementById('opponentInput');
+        const graphModal = document.getElementById('graphModal');
 
         // --- Initialization ---
         window.onload = function() {
@@ -296,7 +374,6 @@
             }
         }
 
-        // Re-acquire wake lock if tab is switched back and game is live
         document.addEventListener('visibilitychange', async () => {
             if (wakeLock !== null && document.visibilityState === 'visible' && isRunning) {
                 await requestWakeLock();
@@ -325,7 +402,6 @@
             if (savedOpponent) opponentInput.value = savedOpponent;
         }
 
-        // --- STREAMING_CHUNK:Timer and Data Functions... ---
         // --- Timer Logic ---
         function formatTime(totalSeconds) {
             const minutes = Math.floor(totalSeconds / 60);
@@ -342,15 +418,15 @@
                 isRunning = true;
                 startBtn.classList.add('hidden');
                 pauseBtn.classList.remove('hidden');
-                statusIndicator.textContent = "LIVE";
-                statusIndicator.className = "font-bold text-green-500 pulse";
+                statusIndicator.innerHTML = '<i class="ph-fill ph-play-circle"></i> LIVE';
+                statusIndicator.className = "font-bold text-emerald-500 text-sm flex items-center gap-1 pulse";
                 
-                requestWakeLock(); // Lock iPad screen ON
+                requestWakeLock();
 
                 timerInterval = setInterval(() => {
                     timeInSeconds++;
                     updateDisplay();
-                    if(timeInSeconds % 5 === 0) saveToLocal(); // Auto-save every 5 seconds while running
+                    if(timeInSeconds % 5 === 0) saveToLocal(); 
                 }, 1000);
             }
         }
@@ -361,10 +437,10 @@
                 clearInterval(timerInterval);
                 pauseBtn.classList.add('hidden');
                 startBtn.classList.remove('hidden');
-                statusIndicator.textContent = "PAUSED";
-                statusIndicator.className = "font-bold text-red-500";
+                statusIndicator.innerHTML = '<i class="ph-fill ph-stop-circle"></i> PAUSED';
+                statusIndicator.className = "font-bold text-rose-500 text-sm flex items-center gap-1";
                 
-                releaseWakeLock(); // Let screen sleep
+                releaseWakeLock();
                 saveToLocal();
             }
         }
@@ -373,11 +449,11 @@
         function setHalf(halfNumber) {
             currentHalf = halfNumber;
             if (halfNumber === 1) {
-                half1Btn.className = "px-4 py-1.5 rounded bg-slate-700 text-white text-sm font-bold shadow-sm transition-colors";
-                half2Btn.className = "px-4 py-1.5 rounded text-slate-400 text-sm font-bold hover:text-white transition-colors";
+                half1Btn.className = "px-4 py-1.5 rounded bg-[#3f3f46] text-white text-sm font-bold shadow-sm transition-colors border border-[#52525b]";
+                half2Btn.className = "px-4 py-1.5 rounded bg-transparent text-[#a1a1aa] text-sm font-bold hover:text-white transition-colors border border-transparent";
             } else {
-                half2Btn.className = "px-4 py-1.5 rounded bg-slate-700 text-white text-sm font-bold shadow-sm transition-colors";
-                half1Btn.className = "px-4 py-1.5 rounded text-slate-400 text-sm font-bold hover:text-white transition-colors";
+                half2Btn.className = "px-4 py-1.5 rounded bg-[#3f3f46] text-white text-sm font-bold shadow-sm transition-colors border border-[#52525b]";
+                half1Btn.className = "px-4 py-1.5 rounded bg-transparent text-[#a1a1aa] text-sm font-bold hover:text-white transition-colors border border-transparent";
             }
             saveToLocal();
         }
@@ -393,8 +469,7 @@
                 timestamp: new Date().toLocaleTimeString()
             };
             
-            // Add to beginning of array so newest is at the top
-            events.unshift(newEvent);
+            events.unshift(newEvent); // Newest at top
             saveToLocal();
             renderTimeline();
         }
@@ -406,7 +481,7 @@
             if (val) {
                 logEvent(val);
                 input.value = '';
-                input.blur(); // Dismiss keyboard on iPad
+                input.blur(); 
             }
         }
 
@@ -414,53 +489,60 @@
             events = events.filter(ev => ev.id !== id);
             saveToLocal();
             renderTimeline();
+            // Re-render chart if open
+            if(!graphModal.classList.contains('hidden') && chartInstance) {
+                generateChart();
+            }
         }
 
-        // --- STREAMING_CHUNK:UI Rendering & Export... ---
+        // --- STREAMING_CHUNK:UI Rendering & Chart.js Integration... ---
         // --- Timeline UI ---
         function renderTimeline() {
-            totalEventsDisplay.textContent = `${events.length} Events`;
+            totalEventsDisplay.textContent = events.length;
 
             if (events.length === 0) {
-                emptyTimelineMsg.style.display = 'block';
-                // Remove all child nodes except the empty message
+                emptyTimelineMsg.style.display = 'flex';
                 Array.from(timelineContainer.children).forEach(child => {
-                    if (child.id !== 'emptyTimelineMsg') {
-                        timelineContainer.removeChild(child);
-                    }
+                    if (child.id !== 'emptyTimelineMsg') timelineContainer.removeChild(child);
                 });
                 return;
             }
 
             emptyTimelineMsg.style.display = 'none';
             
-            // Clear current timeline (except empty message)
             Array.from(timelineContainer.children).forEach(child => {
-                if (child.id !== 'emptyTimelineMsg') {
-                    timelineContainer.removeChild(child);
-                }
+                if (child.id !== 'emptyTimelineMsg') timelineContainer.removeChild(child);
             });
 
-            // Rebuild
             events.forEach(ev => {
                 const el = document.createElement('div');
-                el.className = "timeline-entry bg-slate-800 border border-slate-700 rounded p-3 flex justify-between items-center shadow-sm";
+                el.className = "timeline-entry bg-[#27272a] border border-[#3f3f46] rounded-md p-2 flex justify-between items-center shadow-sm";
                 
-                // Color code the action text slightly based on keywords
+                // Color coding based on semantic names
                 let actionColor = "text-white";
-                if(ev.action.includes('Missed') || ev.action.includes('Lost') || ev.action.includes('Conceded') || ev.action.includes('Error') || ev.action.includes('Card')) actionColor = "text-red-400";
-                if(ev.action.includes('Won') || ev.action.includes('Break') || ev.action.includes('Try') || ev.action.includes('Dominant')) actionColor = "text-green-400";
+                let icon = "ph-tag";
+                const action = ev.action.toLowerCase();
+                
+                if(action.includes('missed') || action.includes('lost') || action.includes('conceded') || action.includes('error') || action.includes('red card')) {
+                    actionColor = "text-rose-400"; icon = "ph-warning-circle";
+                } else if(action.includes('won') || action.includes('break') || action.includes('scored') || action.includes('dominant') || action.includes('converted')) {
+                    actionColor = "text-emerald-400"; icon = "ph-check-circle";
+                } else if (action.includes('yellow')) {
+                    actionColor = "text-yellow-400"; icon = "ph-rectangle";
+                }
 
                 el.innerHTML = `
-                    <div class="flex gap-3 items-center">
-                        <div class="bg-slate-900 rounded px-2 py-1 flex flex-col items-center justify-center min-w-[50px] border border-slate-700">
-                            <span class="text-xs text-slate-500 font-bold leading-none">H${ev.half}</span>
-                            <span class="text-sm text-slate-300 font-mono leading-none mt-1">${ev.time}</span>
+                    <div class="flex gap-2 items-center overflow-hidden">
+                        <div class="bg-[#18181b] rounded px-1.5 py-1 flex flex-col items-center justify-center min-w-[42px] border border-[#3f3f46] shrink-0">
+                            <span class="text-[10px] text-[#a1a1aa] font-bold leading-none mb-0.5">H${ev.half}</span>
+                            <span class="text-xs text-white font-mono leading-none">${ev.time}</span>
                         </div>
-                        <div class="font-semibold text-sm ${actionColor}">${ev.action}</div>
+                        <div class="font-semibold text-sm ${actionColor} truncate flex items-center gap-1.5">
+                            <i class="ph-fill ${icon} opacity-70"></i> ${ev.action}
+                        </div>
                     </div>
-                    <button onclick="deleteEvent('${ev.id}')" class="text-slate-500 hover:text-red-500 p-2 rounded transition-colors" title="Delete">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    <button onclick="deleteEvent('${ev.id}')" class="text-[#71717a] hover:text-rose-500 p-1.5 rounded transition-colors shrink-0" title="Delete">
+                        <i class="ph-bold ph-x"></i>
                     </button>
                 `;
                 timelineContainer.appendChild(el);
@@ -468,12 +550,8 @@
         }
 
         // --- Data Management (Clear & Export) ---
-        function clearDataConfirm() {
-            document.getElementById('confirmModal').classList.remove('hidden');
-        }
-        function closeConfirmModal() {
-            document.getElementById('confirmModal').classList.add('hidden');
-        }
+        function clearDataConfirm() { document.getElementById('confirmModal').classList.remove('hidden'); }
+        function closeConfirmModal() { document.getElementById('confirmModal').classList.add('hidden'); }
 
         function executeClearData() {
             pauseTimer();
@@ -481,7 +559,6 @@
             events = [];
             currentHalf = 1;
             opponentInput.value = '';
-            
             updateDisplay();
             setHalf(1);
             renderTimeline();
@@ -490,43 +567,176 @@
             localStorage.removeItem('hoveRfcTime');
             localStorage.removeItem('hoveRfcHalf');
             localStorage.removeItem('hoveRfcOpponent');
-            
             closeConfirmModal();
         }
 
         function exportCSV() {
-            if (events.length === 0) {
-                alert("No events to export yet!");
-                return;
-            }
-
-            // Create CSV headers
-            let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += "Half,Match Time (MM:SS),Seconds,Action,Real World Time\n";
-
-            // Add rows (reverse array so chronological in CSV)
+            if (events.length === 0) { alert("No events to export yet!"); return; }
+            let csvContent = "data:text/csv;charset=utf-8,Half,Match Time (MM:SS),Seconds,Action,Real World Time\n";
             const chronologicalEvents = [...events].reverse();
             chronologicalEvents.forEach(ev => {
-                // Escape quotes in custom actions if necessary
                 const safeAction = `"${ev.action.replace(/"/g, '""')}"`;
-                const row = `${ev.half},${ev.time},${ev.seconds},${safeAction},${ev.timestamp}`;
-                csvContent += row + "\n";
+                csvContent += `${ev.half},${ev.time},${ev.seconds},${safeAction},${ev.timestamp}\n`;
             });
-
-            // Format Filename
             const opp = opponentInput.value.trim() || "Unknown";
             const safeOpp = opp.replace(/[^a-z0-9]/gi, '_').toLowerCase();
             const dateStr = new Date().toISOString().split('T')[0];
             const fileName = `Hove_RFC_vs_${safeOpp}_${dateStr}.csv`;
-
-            // Download trigger
+            
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
             link.setAttribute("download", fileName);
-            document.body.appendChild(link); // Required for FF
+            document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+        }
+
+        // --- Match Graph (Chart.js) Logic ---
+        function openGraphModal() {
+            if (events.length === 0) {
+                alert("Log some events first to generate a graph!");
+                return;
+            }
+            graphModal.classList.remove('hidden');
+            generateChart();
+        }
+
+        function closeGraphModal() {
+            graphModal.classList.add('hidden');
+        }
+
+        function generateChart() {
+            const ctx = document.getElementById('matchGraph').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            // Categories for Y-Axis (Bottom to Top)
+            const yCategories = [
+                "Errors & Penalties", 
+                "Set Piece", 
+                "Defence", 
+                "Attack", 
+                "Scoring & Cards"
+            ];
+
+            // Helper to map an action to a Y-category and specific color
+            const mapActionToCategory = (action) => {
+                const a = action.toLowerCase();
+                // Scoring & Cards
+                if (a.includes('try') || a.includes('card')) {
+                    let color = '#10b981'; // Green for our try
+                    if(a.includes('conceded') || a.includes('red')) color = '#ef4444'; // Red
+                    if(a.includes('yellow')) color = '#eab308'; // Yellow
+                    return { y: 4, color: color, shape: 'triangle' };
+                }
+                // Attack
+                if (a.includes('break') || a.includes('beaten') || a.includes('offload') || a.includes('kick')) {
+                    return { y: 3, color: '#3b82f6', shape: 'circle' };
+                }
+                // Defence
+                if (a.includes('tackle made') || a.includes('dominant') || a.includes('turnover won') || a.includes('penalty won')) {
+                    return { y: 2, color: '#8b5cf6', shape: 'circle' };
+                }
+                // Set Piece
+                if (a.includes('scrum') || a.includes('lineout')) {
+                    const color = a.includes('won') ? '#f59e0b' : '#ef4444';
+                    return { y: 1, color: color, shape: 'rect' };
+                }
+                // Errors & Penalties (Default fallback for negatives)
+                if (a.includes('missed') || a.includes('error') || a.includes('lost') || a.includes('conceded')) {
+                    return { y: 0, color: '#f43f5e', shape: 'circle' };
+                }
+                // Default custom notes
+                return { y: 2.5, color: '#71717a', shape: 'star' }; 
+            };
+
+            // Prepare dataset
+            const chronologicalEvents = [...events].reverse();
+            const dataPoints = chronologicalEvents.map(ev => {
+                // Convert seconds to minutes for X axis
+                const matchMinutes = ev.seconds / 60;
+                // Add a penalty to 2nd half time so it plots further right (assuming 40 min halves)
+                const plottedMinutes = ev.half === 2 ? matchMinutes + 40 : matchMinutes;
+                
+                const style = mapActionToCategory(ev.action);
+                
+                return {
+                    x: plottedMinutes,
+                    y: style.y,
+                    action: ev.action,
+                    timeStr: ev.time,
+                    half: ev.half,
+                    color: style.color,
+                    shape: style.shape
+                };
+            });
+
+            // Create Chart
+            chartInstance = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Match Events',
+                        data: dataPoints,
+                        backgroundColor: dataPoints.map(dp => dp.color),
+                        borderColor: '#09090b',
+                        borderWidth: 1,
+                        pointStyle: dataPoints.map(dp => dp.shape),
+                        pointRadius: 8,
+                        pointHoverRadius: 12
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(24, 24, 27, 0.95)',
+                            titleColor: '#fff',
+                            bodyColor: '#a1a1aa',
+                            borderColor: '#3f3f46',
+                            borderWidth: 1,
+                            padding: 12,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    const pt = context.raw;
+                                    return [`Action: ${pt.action}`, `Time: ${pt.timeStr} (H${pt.half})`];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom',
+                            title: { display: true, text: 'Match Minutes', color: '#a1a1aa' },
+                            grid: { color: '#27272a' },
+                            ticks: { color: '#a1a1aa', callback: function(value) { return value + "'"; } },
+                            min: 0
+                        },
+                        y: {
+                            title: { display: false },
+                            grid: { color: '#27272a' },
+                            ticks: {
+                                color: '#f4f4f5',
+                                font: { weight: 'bold' },
+                                callback: function(value, index, values) {
+                                    return yCategories[value];
+                                },
+                                stepSize: 1
+                            },
+                            min: -0.5,
+                            max: 4.5
+                        }
+                    }
+                }
+            });
         }
     </script>
 </body>
