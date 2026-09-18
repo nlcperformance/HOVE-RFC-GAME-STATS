@@ -249,7 +249,7 @@
 
     <!-- PROTECTED JAVASCRIPT BLOCK -->
     <script>
-        //        let timerInterval;
+        let timerInterval;
         let seconds = 0;
         let isRunning = false;
         let currentHalf = 1;
@@ -278,7 +278,7 @@
             }
         }
 
-        //        function updateTimerDisplay() {
+        function updateTimerDisplay() {
             const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
             const secs = (seconds % 60).toString().padStart(2, '0');
             document.getElementById('timerDisplay').innerText = `${mins}:${secs}`;
@@ -333,7 +333,7 @@
             return `${mins}:${secs}`;
         }
 
-        //        function logEvent(action) {
+        function logEvent(action) {
             const timestamp = new Date().getTime();
             const matchTime = getFormattedMatchTime();
             
@@ -443,7 +443,7 @@
             document.body.removeChild(link);
         }
 
-        //        function openGraph() {
+        function openGraph() {
             document.getElementById('graphModal').classList.remove('hidden');
             document.getElementById('graphModal').classList.add('flex');
             renderGraph();
