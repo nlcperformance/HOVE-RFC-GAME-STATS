@@ -217,7 +217,12 @@
         <div class="w-full lg:w-1/3 bg-slate-800 border-l border-slate-700 flex flex-col h-1/3 lg:h-full absolute lg:relative bottom-0 lg:bottom-auto shadow-2xl lg:shadow-none">
             <div class="p-3 border-b border-slate-700 flex justify-between items-center bg-slate-800/90 backdrop-blur z-10 sticky top-0">
                 <h2 class="font-bold text-slate-200 flex items-center gap-2"><i class="ph-fill ph-list-dashes text-blue-400"></i> Match Timeline</h2>
-                <span id="eventCount" class="text-xs bg-slate-700 px-2 py-1 rounded text-slate-300">0 events</span>
+                <div class="flex items-center gap-2">
+                    <span id="eventCount" class="text-xs bg-slate-700 px-2 py-1 rounded text-slate-300">0 events</span>
+                    <button onclick="clearAllEvents()" class="text-slate-400 hover:text-rose-500 transition-colors p-1" title="Clear All Data">
+                        <i class="ph-bold ph-trash text-lg"></i>
+                    </button>
+                </div>
             </div>
             <div id="timeline" class="flex-1 overflow-y-auto p-3 space-y-2 no-scrollbar bg-slate-800/50">
                 <!-- Timeline items injected here -->
@@ -360,6 +365,21 @@
             events = events.filter(e => e.id !== id);
             saveToLocal();
             updateTimelineUI();
+        }
+
+        function clearAllEvents() {
+            if (events.length === 0) return;
+            if (confirm("Are you sure you want to delete ALL logged events? This cannot be undone and resets the app for a new match.")) {
+                events = [];
+                saveToLocal();
+                updateTimelineUI();
+                
+                // Also reset the timer and opponent name for the new game
+                if (isRunning) toggleTimer();
+                seconds = 0;
+                updateTimerDisplay();
+                document.getElementById('opponentName').value = '';
+            }
         }
 
         function saveToLocal() {
@@ -534,17 +554,17 @@
                         // Dataset 0: The Momentum Wave (Line Chart mapped to secondary Y-Axis)
                         {
                             type: 'line',
-                            label: '5-Min Rolling Momentum',
+                            label: 'Attacking Threat',
                             data: momentumData,
                             yAxisID: 'yMomentum',
-                            borderColor: 'rgba(255, 255, 255, 0.4)',
-                            borderWidth: 1,
+                            borderColor: 'rgba(255, 255, 255, 0.8)',
+                            borderWidth: 2,
                             tension: 0.4, // Smooth curves
                             pointRadius: 0, // Hide points on the line
                             fill: {
                                 target: 'origin',
-                                above: 'rgba(16, 185, 129, 0.25)', // Emerald tint when dominating
-                                below: 'rgba(239, 68, 68, 0.25)'   // Red tint when under pressure
+                                above: 'rgba(59, 130, 246, 0.75)', // Opta Blue for Hove Threat
+                                below: 'rgba(244, 63, 94, 0.75)'   // Opta Red for Opponent Threat
                             }
                         },
                         // Dataset 1: The Event Taps (Scatter Chart mapped to primary Y-Axis)
@@ -606,14 +626,18 @@
                                     return labels[value] || '';
                                 }
                             },
-                            grid: { color: 'rgba(255,255,255,0.1)' }
+                            grid: { color: 'rgba(255,255,255,0.05)' } // Dimmed the scatter grid lines
                         },
                         // Secondary Y-Axis (Right) - Used strictly for scaling the Momentum curve height
                         yMomentum: {
                             type: 'linear',
                             position: 'right',
-                            title: { display: true, text: 'Momentum (5min Rolling Weight)', color: '#cbd5e1' },
-                            grid: { display: false },
+                            title: { display: true, text: 'Attacking Threat', color: '#cbd5e1' },
+                            grid: { 
+                                // Creates a solid white baseline at zero, hides all other grid lines
+                                color: (ctx) => ctx.tick.value === 0 ? 'rgba(255, 255, 255, 1)' : 'transparent',
+                                lineWidth: (ctx) => ctx.tick.value === 0 ? 2 : 0
+                            },
                             // Keeps the graph centered vertically on zero
                             suggestedMin: -20,
                             suggestedMax: 20
