@@ -36,12 +36,14 @@
             padding: 0.75rem 0.5rem;
             border-radius: 0.75rem;
             font-weight: 700;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             transition: all 0.1s ease;
             box-shadow: 0 4px 0 0 rgba(0,0,0,0.4);
             border: 1px solid rgba(255,255,255,0.1);
             user-select: none;
             cursor: pointer;
+            text-align: center;
+            line-height: 1.1;
         }
         .stat-btn:active {
             transform: translateY(4px);
@@ -60,7 +62,7 @@
         .btn-defence { background: linear-gradient(145deg, #8b5cf6, #7c3aed); color: white; border-bottom: 4px solid #6d28d9; }
         .btn-error { background: linear-gradient(145deg, #f43f5e, #e11d48); color: white; border-bottom: 4px solid #be123c; }
         .btn-setpiece { background: linear-gradient(145deg, #f59e0b, #d97706); color: white; border-bottom: 4px solid #b45309; }
-        .btn-discipline { background: linear-gradient(145deg, #fbbf24, #f59e0b); color: #1e3a8a; border-bottom: 4px solid #d97706; }
+        .btn-discipline { background: linear-gradient(145deg, #eab308, #ca8a04); color: #1e293b; border-bottom: 4px solid #a16207; }
         
         .cat-header {
             font-size: 0.85rem;
@@ -92,7 +94,8 @@
 
         <!-- Center: Timer & Controls -->
         <div class="flex items-center gap-3 bg-slate-900 p-2 rounded-xl border border-slate-700 shadow-inner w-full lg:w-auto justify-center">
-            <div id="timerDisplay" class="text-4xl font-mono font-bold min-w-[160px] text-center text-red-500 tracking-wider">00:00</div>
+            <!-- Fixed min-width so the font doesn't push the buttons -->
+            <div id="timerDisplay" class="text-4xl font-mono font-bold min-w-[140px] text-center text-red-500 tracking-wider">00:00</div>
             
             <div class="flex flex-col gap-1">
                 <div class="flex gap-1">
@@ -152,23 +155,22 @@
                         <button onclick="logEvent('Defender Beaten')" class="stat-btn btn-attack"><i class="ph-fill ph-person-simple-run"></i>Def Beaten</button>
                         <button onclick="logEvent('Offload')" class="stat-btn btn-attack"><i class="ph-fill ph-hands-clapping"></i>Offload</button>
                         <button onclick="logEvent('Kick in Play')" class="stat-btn btn-attack"><i class="ph-fill ph-sneaker-move"></i>Kick In Play</button>
-                        <!-- Custom Hove Attack Stats -->
-                        <button onclick="logEvent('POT')" class="stat-btn btn-attack" title="Pressure On Them"><i class="ph-fill ph-gauge"></i>POT</button>
-                        <button onclick="logEvent('Noah')" class="stat-btn btn-attack" title="No-one is at Home"><i class="ph-fill ph-house-line"></i>Noah</button>
+                        <button onclick="logEvent('POT')" class="stat-btn btn-attack"><i class="ph-fill ph-gauge"></i>POT</button>
+                        <button onclick="logEvent('Noah')" class="stat-btn btn-attack"><i class="ph-fill ph-house-line"></i>Noah</button>
                     </div>
                 </div>
                 <div>
                     <div class="cat-header"><i class="ph-fill ph-shield text-violet-500"></i> Defence Positives</div>
-                    <div class="grid grid-cols-2 lg:grid-cols-3 gap-2">
+                    <!-- Using grid-cols-2 to fit the 8 specific defensive buttons cleanly -->
+                    <div class="grid grid-cols-2 gap-2">
                         <button onclick="logEvent('Tackle Made')" class="stat-btn btn-defence"><i class="ph-fill ph-users-three"></i>Tackle Made</button>
                         <button onclick="logEvent('Dominant Tackle')" class="stat-btn btn-defence"><i class="ph-fill ph-barbell"></i>Dominant Hit</button>
-                        <!-- Custom Hove Defence Stats -->
                         <button onclick="logEvent('Double Tackle')" class="stat-btn btn-defence"><i class="ph-fill ph-users"></i>Double Tackle</button>
+                        <button onclick="logEvent('Nause')" class="stat-btn btn-defence"><i class="ph-fill ph-hand-grabbing"></i>Nause</button>
+                        <button onclick="logEvent('Wolf')" class="stat-btn btn-defence"><i class="ph-fill ph-paw-print"></i>Wolf</button>
+                        <button onclick="logEvent('Scout')" class="stat-btn btn-defence"><i class="ph-fill ph-binoculars"></i>Scout</button>
                         <button onclick="logEvent('Turnover Won')" class="stat-btn btn-score"><i class="ph-fill ph-arrows-merge"></i>Turnover Won</button>
                         <button onclick="logEvent('Penalty Won')" class="stat-btn btn-score"><i class="ph-fill ph-whistle"></i>Penalty Won</button>
-                        <button onclick="logEvent('Nause')" class="stat-btn btn-defence" title="Breakdown Nuisance"><i class="ph-fill ph-hand-grabbing"></i>Nause</button>
-                        <button onclick="logEvent('Wolf')" class="stat-btn btn-defence" title="Wolf System"><i class="ph-fill ph-paw-print"></i>Wolf</button>
-                        <button onclick="logEvent('Scout')" class="stat-btn btn-defence" title="Scout Role"><i class="ph-fill ph-binoculars"></i>Scout</button>
                     </div>
                 </div>
             </div>
@@ -227,7 +229,10 @@
     <!-- GRAPH MODAL OVERLAY -->
     <div id="graphModal" class="fixed inset-0 bg-slate-900/95 backdrop-blur-sm z-50 hidden flex-col">
         <div class="flex justify-between items-center p-4 border-b border-slate-700">
-            <h2 class="text-2xl font-bold text-white flex items-center gap-2"><i class="ph-fill ph-chart-line-up text-blue-400"></i> Match Momentum Graph</h2>
+            <div>
+                <h2 class="text-2xl font-bold text-white flex items-center gap-2"><i class="ph-fill ph-chart-line-up text-blue-400"></i> Match Momentum & Events Graph</h2>
+                <p class="text-slate-400 text-sm mt-1">Shaded area represents a 5-minute rolling momentum score.</p>
+            </div>
             <button onclick="closeGraph()" class="bg-slate-700 hover:bg-rose-600 text-white p-2 rounded-full transition-colors">
                 <i class="ph-bold ph-x text-xl"></i>
             </button>
@@ -237,9 +242,9 @@
         </div>
     </div>
 
+    <!-- PROTECTED JAVASCRIPT BLOCK -->
     <script>
-        // --- State Variables ---
-        let timerInterval;
+        //        let timerInterval;
         let seconds = 0;
         let isRunning = false;
         let currentHalf = 1;
@@ -247,7 +252,6 @@
         let wakeLock = null;
         let chartInstance = null;
 
-        // --- Wake Lock Logic (Keeps iPad screen on) ---
         async function requestWakeLock() {
             try {
                 if ('wakeLock' in navigator) {
@@ -269,8 +273,7 @@
             }
         }
 
-        // --- Timer Functions ---
-        function updateTimerDisplay() {
+        //        function updateTimerDisplay() {
             const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
             const secs = (seconds % 60).toString().padStart(2, '0');
             document.getElementById('timerDisplay').innerText = `${mins}:${secs}`;
@@ -295,7 +298,7 @@
                 btn.className = "bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded font-bold flex items-center gap-1 transition-colors shadow-sm text-sm";
                 display.classList.remove('text-red-500');
                 display.classList.add('text-emerald-400', 'animate-pulse');
-                requestWakeLock(); // Lock screen on start
+                requestWakeLock();
             }
             isRunning = !isRunning;
         }
@@ -325,24 +328,22 @@
             return `${mins}:${secs}`;
         }
 
-        // --- Logging Functions ---
-        function logEvent(action) {
-            const timestamp = new Date().getTime(); // Unique ID
+        //        function logEvent(action) {
+            const timestamp = new Date().getTime();
             const matchTime = getFormattedMatchTime();
             
-            // Provide subtle haptic feedback if supported on mobile
             if (navigator.vibrate) navigator.vibrate(50);
 
             const newEvent = {
                 id: timestamp,
                 half: currentHalf,
                 time: matchTime,
-                seconds_raw: seconds, // Stored for accurate graph plotting
+                seconds_raw: seconds,
                 action: action,
                 realTime: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
             };
 
-            events.unshift(newEvent); // Add to top of list
+            events.unshift(newEvent);
             saveToLocal();
             updateTimelineUI();
         }
@@ -389,7 +390,6 @@
             `).join('');
         }
 
-        // --- Export Logic ---
         function exportCSV() {
             if (events.length === 0) {
                 alert("No events to export yet.");
@@ -399,7 +399,6 @@
             let csvContent = "data:text/csv;charset=utf-8,";
             csvContent += "Half,Match Time,Action,Real Time\n";
 
-            // Sort chronologically for the export
             const sortedEvents = [...events].sort((a, b) => {
                 if(a.half !== b.half) return a.half - b.half;
                 return a.seconds_raw - b.seconds_raw;
@@ -424,8 +423,7 @@
             document.body.removeChild(link);
         }
 
-        // --- Match Graph Logic ---
-        function openGraph() {
+        //        function openGraph() {
             document.getElementById('graphModal').classList.remove('hidden');
             document.getElementById('graphModal').classList.add('flex');
             renderGraph();
@@ -436,50 +434,71 @@
             document.getElementById('graphModal').classList.remove('flex');
         }
 
+        // Helper to convert half and seconds into absolute match minutes
+        const getAbsoluteMinutes = (e) => {
+            return (e.seconds_raw / 60) + (e.half === 2 ? 40 : 0);
+        };
+
+        // Calculates the mathematical weight of an event for the Momentum Shift algorithm
+        const getEventWeight = (action) => {
+            const a = action.toLowerCase();
+            if (a === 'try' || a === 'try converted') return 10;
+            if (a === 'penalty goal') return 5;
+            
+            if (a === 'try conceded') return -10;
+            if (a === 'red card') return -10;
+            if (a === 'yellow card') return -7;
+
+            if (a === 'turnover won' || a === 'penalty won') return 5;
+            if (a === 'turnover lost' || a === 'penalty conceded') return -5;
+
+            if (a === 'clean break' || a === 'dominant tackle' || a === 'double tackle' || a === 'pot') return 4;
+            if (a === 'defender beaten' || a === 'offload' || a === 'noah' || a === 'nause') return 3;
+            if (a === 'wolf' || a === 'scout' || a === 'scrum won' || a === 'lineout won') return 2;
+            if (a === 'tackle made' || a === 'kick in play') return 1;
+
+            if (a === 'handling error' || a === 'missed tackle' || a === 'scrum lost' || a === 'lineout lost') return -3;
+
+            return 0; // Default for unknowns/custom
+        };
+
         function renderGraph() {
             const ctx = document.getElementById('matchChart').getContext('2d');
             if (chartInstance) chartInstance.destroy();
 
-            if (events.length === 0) return; // Nothing to chart
+            if (events.length === 0) return;
 
-            // Helper to map an action to a Y-category and specific color
+            // Map actions to Scatter Plot Categories (Y-Axis)
             const mapActionToCategory = (action) => {
                 const a = action.toLowerCase();
-                // Scoring & Cards
-                if (a.includes('try') || a.includes('card')) {
-                    let color = '#10b981'; // Green for our try
+                if (a.includes('try') || a.includes('card') || a.includes('pen goal')) {
+                    let color = '#10b981'; // Green
                     if(a.includes('conceded') || a.includes('red')) color = '#ef4444'; // Red
                     if(a.includes('yellow')) color = '#eab308'; // Yellow
                     return { y: 4, color: color, shape: 'triangle' };
                 }
-                // Attack Specifics
                 if (a.includes('break') || a.includes('beaten') || a.includes('offload') || a.includes('kick') || a.includes('pot') || a.includes('noah')) {
-                    return { y: 3, color: '#3b82f6', shape: 'circle' };
+                    return { y: 3, color: '#3b82f6', shape: 'circle' }; // Attack Line
                 }
-                // Defence Specifics
-                if (a.includes('tackle made') || a.includes('dominant') || a.includes('turnover won') || a.includes('penalty won') || a.includes('double tackle') || a.includes('nause') || a.includes('wolf') || a.includes('scout')) {
-                    return { y: 2, color: '#8b5cf6', shape: 'circle' };
+                if (a.includes('tackle') || a.includes('turnover won') || a.includes('penalty won') || a.includes('nause') || a.includes('wolf') || a.includes('scout')) {
+                    if (a.includes('missed')) return { y: 0, color: '#f43f5e', shape: 'circle' };
+                    return { y: 2, color: '#8b5cf6', shape: 'circle' }; // Defence Line
                 }
-                // Set Piece
                 if (a.includes('scrum') || a.includes('lineout')) {
                     const color = a.includes('won') ? '#f59e0b' : '#ef4444';
-                    return { y: 1, color: color, shape: 'rect' };
+                    return { y: 1, color: color, shape: 'rect' }; // Set Piece Line
                 }
-                // Errors & Penalties (Default fallback for negatives)
-                if (a.includes('missed') || a.includes('error') || a.includes('lost') || a.includes('conceded')) {
-                    return { y: 0, color: '#f43f5e', shape: 'circle' };
+                if (a.includes('error') || a.includes('lost') || a.includes('conceded')) {
+                    return { y: 0, color: '#f43f5e', shape: 'circle' }; // Errors Line
                 }
-                
-                return { y: 2.5, color: '#94a3b8', shape: 'circle' }; // Unknown/Custom
+                return { y: 2.5, color: '#94a3b8', shape: 'circle' };
             };
 
-            // Prepare datasets
-            const dataPoints = [...events].reverse().map(e => {
+            // 1. Prepare Scatter Data (The discrete events)
+            const scatterDataPoints = [...events].reverse().map(e => {
                 const style = mapActionToCategory(e.action);
-                // Adjust time for half 2 so it plots continuously on X axis
-                const timeInMinutes = (e.seconds_raw / 60) + (e.half === 2 ? 40 : 0); 
                 return {
-                    x: timeInMinutes,
+                    x: getAbsoluteMinutes(e),
                     y: style.y,
                     action: e.action,
                     half: e.half,
@@ -489,22 +508,59 @@
                 };
             });
 
+            // 2. Calculate 5-Minute Rolling Momentum
+            const maxTimeMin = Math.max(80, Math.ceil(Math.max(...scatterDataPoints.map(d=>d.x))));
+            const momentumData = [];
+            
+            // For every minute of the match, sum the weights of events in the previous 5 mins
+            for(let m = 0; m <= maxTimeMin; m++) {
+                let score = 0;
+                events.forEach(e => {
+                    const evtTime = getAbsoluteMinutes(e);
+                    // If event happened in the last 5 minutes relative to 'm'
+                    if(evtTime <= m && evtTime >= m - 5) {
+                        score += getEventWeight(e.action);
+                    }
+                });
+                momentumData.push({x: m, y: score});
+            }
+
             Chart.defaults.color = '#94a3b8';
             Chart.defaults.font.family = 'sans-serif';
 
             chartInstance = new Chart(ctx, {
-                type: 'scatter',
                 data: {
-                    datasets: [{
-                        label: 'Match Events',
-                        data: dataPoints,
-                        pointBackgroundColor: dataPoints.map(dp => dp.bgColor),
-                        pointBorderColor: '#ffffff',
-                        pointBorderWidth: 1,
-                        pointRadius: 6,
-                        pointHoverRadius: 9,
-                        pointStyle: dataPoints.map(dp => dp.shape),
-                    }]
+                    datasets: [
+                        // Dataset 0: The Momentum Wave (Line Chart mapped to secondary Y-Axis)
+                        {
+                            type: 'line',
+                            label: '5-Min Rolling Momentum',
+                            data: momentumData,
+                            yAxisID: 'yMomentum',
+                            borderColor: 'rgba(255, 255, 255, 0.4)',
+                            borderWidth: 1,
+                            tension: 0.4, // Smooth curves
+                            pointRadius: 0, // Hide points on the line
+                            fill: {
+                                target: 'origin',
+                                above: 'rgba(16, 185, 129, 0.25)', // Emerald tint when dominating
+                                below: 'rgba(239, 68, 68, 0.25)'   // Red tint when under pressure
+                            }
+                        },
+                        // Dataset 1: The Event Taps (Scatter Chart mapped to primary Y-Axis)
+                        {
+                            type: 'scatter',
+                            label: 'Match Events',
+                            data: scatterDataPoints,
+                            yAxisID: 'y',
+                            pointBackgroundColor: scatterDataPoints.map(dp => dp.bgColor),
+                            pointBorderColor: '#1e293b',
+                            pointBorderWidth: 1.5,
+                            pointRadius: 7,
+                            pointHoverRadius: 10,
+                            pointStyle: scatterDataPoints.map(dp => dp.shape),
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,
@@ -512,12 +568,15 @@
                     plugins: {
                         legend: { display: false },
                         tooltip: {
-                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
                             titleFont: { size: 14 },
                             bodyFont: { size: 14, weight: 'bold' },
                             padding: 10,
                             callbacks: {
                                 label: function(context) {
+                                    if (context.dataset.type === 'line') {
+                                        return `Pressure Score: ${context.raw.y}`;
+                                    }
                                     const d = context.raw;
                                     return `H${d.half} ${d.displayTime} | ${d.action}`;
                                 }
@@ -531,11 +590,15 @@
                             title: { display: true, text: 'Match Time (Minutes)', color: '#cbd5e1' },
                             grid: { color: 'rgba(255,255,255,0.05)' },
                             min: 0,
-                            max: Math.max(80, Math.ceil(Math.max(...dataPoints.map(d=>d.x))/10)*10)
+                            max: maxTimeMin
                         },
+                        // Primary Y-Axis (Left) - Used strictly for vertical positioning of the event categories
                         y: {
+                            type: 'linear',
+                            position: 'left',
                             min: -0.5,
                             max: 4.5,
+                            title: { display: true, text: 'Event Type', color: '#cbd5e1' },
                             ticks: {
                                 stepSize: 1,
                                 callback: function(value) {
@@ -544,6 +607,16 @@
                                 }
                             },
                             grid: { color: 'rgba(255,255,255,0.1)' }
+                        },
+                        // Secondary Y-Axis (Right) - Used strictly for scaling the Momentum curve height
+                        yMomentum: {
+                            type: 'linear',
+                            position: 'right',
+                            title: { display: true, text: 'Momentum (5min Rolling Weight)', color: '#cbd5e1' },
+                            grid: { display: false },
+                            // Keeps the graph centered vertically on zero
+                            suggestedMin: -20,
+                            suggestedMax: 20
                         }
                     }
                 }
