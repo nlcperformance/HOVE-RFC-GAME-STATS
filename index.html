@@ -27,7 +27,7 @@
             scrollbar-width: none;
         }
 
-        /* Tactile 3D Buttons for iPad */
+        /* Tactile Glassy 3D Buttons for iPad */
         .stat-btn {
             display: flex;
             flex-direction: column;
@@ -38,8 +38,14 @@
             font-weight: 700;
             font-size: 0.85rem;
             transition: all 0.1s ease;
-            box-shadow: 0 4px 0 0 rgba(0,0,0,0.4);
-            border: 1px solid rgba(255,255,255,0.1);
+            
+            /* Glassmorphism Background */
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #f8fafc;
+            box-shadow: 0 4px 0 0 rgba(0,0,0,0.6);
+            
             user-select: none;
             cursor: pointer;
             text-align: center;
@@ -47,22 +53,25 @@
         }
         .stat-btn:active {
             transform: translateY(4px);
-            box-shadow: 0 0 0 0 rgba(0,0,0,0.4);
+            box-shadow: 0 0 0 0 rgba(0,0,0,0.6);
+            background: rgba(255, 255, 255, 0.08);
         }
         .stat-btn i {
             font-size: 1.75rem;
             margin-bottom: 0.25rem;
-            opacity: 0.9;
+            opacity: 1;
+            /* Enhanced glow for better peripheral recognition */
+            filter: drop-shadow(0px 2px 6px rgba(0,0,0,0.7)); 
         }
 
-        /* Themed Button Colors */
-        .btn-score { background: linear-gradient(145deg, #10b981, #059669); color: white; border-bottom: 4px solid #047857; }
-        .btn-score-bad { background: linear-gradient(145deg, #ef4444, #dc2626); color: white; border-bottom: 4px solid #b91c1c; }
-        .btn-attack { background: linear-gradient(145deg, #3b82f6, #2563eb); color: white; border-bottom: 4px solid #1d4ed8; }
-        .btn-defence { background: linear-gradient(145deg, #8b5cf6, #7c3aed); color: white; border-bottom: 4px solid #6d28d9; }
-        .btn-error { background: linear-gradient(145deg, #f43f5e, #e11d48); color: white; border-bottom: 4px solid #be123c; }
-        .btn-setpiece { background: linear-gradient(145deg, #f59e0b, #d97706); color: white; border-bottom: 4px solid #b45309; }
-        .btn-discipline { background: linear-gradient(145deg, #eab308, #ca8a04); color: #1e293b; border-bottom: 4px solid #a16207; }
+        /* Highly Optimized Dual Coding Colors for Dark Mode */
+        .btn-score i { color: #4ade80; } /* Neon Green: Ultimate Success */
+        .btn-score-bad i { color: #f87171; } /* Bright Red: Major Negative */
+        .btn-attack i { color: #60a5fa; } /* Bright Blue: Attack */
+        .btn-defence i { color: #c084fc; } /* Bright Purple: Defence */
+        .btn-error i { color: #fb923c; } /* Vibrant Orange: Errors/Warning */
+        .btn-setpiece i { color: #2dd4bf; } /* Teal: Set Piece Positives */
+        .btn-discipline i { color: #facc15; } /* Pure Yellow: Cards */
         
         .cat-header {
             font-size: 0.85rem;
@@ -78,31 +87,30 @@
     </style>
 </head>
 
-<body class="bg-slate-900 text-slate-100 font-sans h-screen overflow-hidden flex flex-col">
+<body class="bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-zinc-800 via-black to-black text-slate-100 font-sans h-screen overflow-hidden flex flex-col">
 
     <!-- HEADER / TOP BAR -->
-    <header class="bg-slate-800 border-b border-slate-700 p-2 lg:p-4 flex flex-wrap lg:flex-nowrap justify-between items-center z-10 shadow-md gap-2">
+    <header class="bg-white/5 backdrop-blur-md border-b border-white/10 p-2 lg:p-4 flex flex-wrap lg:flex-nowrap justify-between items-center z-10 shadow-lg gap-2">
         
         <!-- Left: Logo & Match Details -->
         <div class="flex items-center gap-3 w-full lg:w-auto">
-            <img src="Hove rfc new (1).png" alt="Hove RFC Logo" onerror="this.outerHTML='<div class=\'w-12 h-12 bg-rose-600 rounded flex items-center justify-center font-bold text-xl\'>H</div>'" class="w-12 h-12 object-contain bg-white rounded-lg p-1">
+            <img src="Hove rfc new (1).png" alt="Hove RFC Logo" onerror="this.outerHTML='<div class=\'w-12 h-12 bg-rose-600 rounded flex items-center justify-center font-bold text-xl\'>H</div>'" class="w-12 h-12 object-contain bg-black rounded-lg p-1 border border-white/10 shadow-inner">
             <div>
                 <h1 class="text-xl font-bold tracking-tight text-white leading-tight">Hove RFC 1st XV</h1>
-                <input type="text" id="opponentName" placeholder="vs. Opponent" class="bg-slate-700 text-sm text-white px-2 py-1 rounded border border-slate-600 focus:outline-none focus:border-blue-500 w-48 mt-1">
+                <input type="text" id="opponentName" placeholder="vs. Opponent" class="bg-black/50 text-sm text-white px-2 py-1 rounded border border-white/10 focus:outline-none focus:border-blue-500 w-48 mt-1 backdrop-blur">
             </div>
         </div>
 
         <!-- Center: Timer & Controls -->
-        <div class="flex items-center gap-3 bg-slate-900 p-2 rounded-xl border border-slate-700 shadow-inner w-full lg:w-auto justify-center">
-            <!-- Fixed min-width so the font doesn't push the buttons -->
+        <div class="flex items-center gap-3 bg-black/40 p-2 rounded-xl border border-white/10 shadow-inner w-full lg:w-auto justify-center backdrop-blur-md">
             <div id="timerDisplay" class="text-4xl font-mono font-bold min-w-[140px] text-center text-red-500 tracking-wider">00:00</div>
             
             <div class="flex flex-col gap-1">
                 <div class="flex gap-1">
-                    <button id="btnStartPause" onclick="toggleTimer()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded font-bold flex items-center gap-1 transition-colors shadow-sm text-sm">
+                    <button id="btnStartPause" onclick="toggleTimer()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded font-bold flex items-center gap-1 transition-colors shadow-sm text-sm border border-emerald-500/50">
                         <i class="ph-fill ph-play"></i> START
                     </button>
-                    <button onclick="resetTimer()" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded transition-colors shadow-sm" title="Reset Timer">
+                    <button onclick="resetTimer()" class="bg-white/10 hover:bg-white/20 text-white px-3 py-2 rounded transition-colors shadow-sm border border-white/10" title="Reset Timer">
                         <i class="ph-bold ph-arrow-counter-clockwise"></i>
                     </button>
                 </div>
@@ -113,18 +121,18 @@
             </div>
 
             <!-- Half Toggle -->
-            <div class="flex bg-slate-800 rounded-lg p-1 border border-slate-600 ml-2">
-                <button id="btnH1" onclick="setHalf(1)" class="px-3 py-1 rounded text-sm font-bold bg-blue-600 text-white transition-colors">H1</button>
+            <div class="flex bg-black/50 rounded-lg p-1 border border-white/10 ml-2">
+                <button id="btnH1" onclick="setHalf(1)" class="px-3 py-1 rounded text-sm font-bold bg-blue-600/80 text-white transition-colors border border-blue-500/50">H1</button>
                 <button id="btnH2" onclick="setHalf(2)" class="px-3 py-1 rounded text-sm font-bold text-slate-400 hover:text-white transition-colors">H2</button>
             </div>
         </div>
 
         <!-- Right: Actions -->
         <div class="flex gap-2 w-full lg:w-auto justify-end">
-            <button onclick="openGraph()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded font-bold text-sm flex items-center gap-1 shadow-md transition-all">
+            <button onclick="openGraph()" class="bg-indigo-600/80 hover:bg-indigo-500 text-white px-3 py-2 rounded font-bold text-sm flex items-center gap-1 shadow-md transition-all border border-indigo-500/50">
                 <i class="ph-fill ph-chart-line-up"></i> Match Graph
             </button>
-            <button onclick="exportCSV()" class="bg-sky-600 hover:bg-sky-500 text-white px-3 py-2 rounded font-bold text-sm flex items-center gap-1 shadow-md transition-all">
+            <button onclick="exportCSV()" class="bg-sky-600/80 hover:bg-sky-500 text-white px-3 py-2 rounded font-bold text-sm flex items-center gap-1 shadow-md transition-all border border-sky-500/50">
                 <i class="ph-bold ph-download-simple"></i> Export CSV
             </button>
         </div>
@@ -133,7 +141,7 @@
     <main class="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
         
         <!-- LEFT PANEL: STAT BUTTONS (Touch Target Area) -->
-        <div class="w-full lg:w-2/3 h-full overflow-y-auto p-3 lg:p-4 pb-24 lg:pb-4 space-y-4 bg-slate-900 no-scrollbar">
+        <div class="w-full lg:w-2/3 h-full overflow-y-auto p-3 lg:p-4 pb-24 lg:pb-4 space-y-4 no-scrollbar">
             
             <!-- ROW 1: SCORING -->
             <div>
@@ -161,7 +169,6 @@
                 </div>
                 <div>
                     <div class="cat-header"><i class="ph-fill ph-shield text-violet-500"></i> Defence Positives</div>
-                    <!-- Using grid-cols-2 to fit the 8 specific defensive buttons cleanly -->
                     <div class="grid grid-cols-2 gap-2">
                         <button onclick="logEvent('Tackle Made')" class="stat-btn btn-defence"><i class="ph-fill ph-users-three"></i>Tackle Made</button>
                         <button onclick="logEvent('Dominant Tackle')" class="stat-btn btn-defence"><i class="ph-fill ph-barbell"></i>Dominant Hit</button>
@@ -178,16 +185,16 @@
             <!-- ROW 3: ERRORS & SET PIECE -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <div class="cat-header"><i class="ph-fill ph-warning-octagon text-rose-500"></i> Errors & Negatives</div>
+                    <div class="cat-header"><i class="ph-fill ph-warning-octagon text-orange-500"></i> Errors & Negatives</div>
                     <div class="grid grid-cols-2 gap-2">
-                        <button onclick="logEvent('Handling Error')" class="stat-btn btn-error"><i class="ph-fill ph-hands-clapping text-slate-900 opacity-50"></i>Handling Error</button>
+                        <button onclick="logEvent('Handling Error')" class="stat-btn btn-error"><i class="ph-fill ph-hands-clapping"></i>Handling Error</button>
                         <button onclick="logEvent('Missed Tackle')" class="stat-btn btn-error"><i class="ph-fill ph-user-minus"></i>Missed Tackle</button>
                         <button onclick="logEvent('Penalty Conceded')" class="stat-btn btn-error"><i class="ph-fill ph-flag"></i>Pen Conceded</button>
                         <button onclick="logEvent('Turnover Lost')" class="stat-btn btn-error"><i class="ph-fill ph-arrows-split"></i>Turnover Lost</button>
                     </div>
                 </div>
                 <div>
-                    <div class="cat-header"><i class="ph-fill ph-users-four text-amber-500"></i> Set Piece</div>
+                    <div class="cat-header"><i class="ph-fill ph-users-four text-teal-500"></i> Set Piece</div>
                     <div class="grid grid-cols-2 lg:grid-cols-4 gap-2">
                         <button onclick="logEvent('Scrum Won')" class="stat-btn btn-setpiece"><i class="ph-bold ph-arrow-circle-up"></i>Scr Won</button>
                         <button onclick="logEvent('Scrum Lost')" class="stat-btn btn-error"><i class="ph-bold ph-arrow-circle-down"></i>Scr Lost</button>
@@ -204,8 +211,8 @@
                     <button onclick="logEvent('Yellow Card')" class="stat-btn btn-discipline"><i class="ph-fill ph-rectangle"></i>Yellow Card</button>
                     <button onclick="logEvent('Red Card')" class="stat-btn btn-score-bad"><i class="ph-fill ph-rectangle"></i>Red Card</button>
                     <div class="flex gap-1 md:col-span-1 h-full">
-                        <input type="text" id="customEventInput" placeholder="Type custom log..." class="bg-slate-800 text-white px-3 py-2 rounded-l-lg border border-slate-700 w-full focus:outline-none focus:border-blue-500 text-sm" onkeypress="if(event.key === 'Enter') logCustomEvent()">
-                        <button onclick="logCustomEvent()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-r-lg font-bold transition-colors">ADD</button>
+                        <input type="text" id="customEventInput" placeholder="Type custom log..." class="bg-black/50 text-white px-3 py-2 rounded-l-lg border border-white/10 w-full focus:outline-none focus:border-blue-500 text-sm backdrop-blur-sm" onkeypress="if(event.key === 'Enter') logCustomEvent()">
+                        <button onclick="logCustomEvent()" class="bg-blue-600/80 hover:bg-blue-500 text-white px-4 py-2 rounded-r-lg font-bold transition-colors border border-blue-500/50">ADD</button>
                     </div>
                 </div>
             </div>
@@ -214,17 +221,17 @@
         </div>
 
         <!-- RIGHT PANEL: TIMELINE -->
-        <div class="w-full lg:w-1/3 bg-slate-800 border-l border-slate-700 flex flex-col h-1/3 lg:h-full absolute lg:relative bottom-0 lg:bottom-auto shadow-2xl lg:shadow-none">
-            <div class="p-3 border-b border-slate-700 flex justify-between items-center bg-slate-800/90 backdrop-blur z-10 sticky top-0">
+        <div class="w-full lg:w-1/3 bg-white/5 backdrop-blur-md border-l border-white/10 flex flex-col h-1/3 lg:h-full absolute lg:relative bottom-0 lg:bottom-auto shadow-2xl lg:shadow-none">
+            <div class="p-3 border-b border-white/10 flex justify-between items-center bg-black/40 backdrop-blur z-10 sticky top-0">
                 <h2 class="font-bold text-slate-200 flex items-center gap-2"><i class="ph-fill ph-list-dashes text-blue-400"></i> Match Timeline</h2>
                 <div class="flex items-center gap-2">
-                    <span id="eventCount" class="text-xs bg-slate-700 px-2 py-1 rounded text-slate-300">0 events</span>
+                    <span id="eventCount" class="text-xs bg-white/10 px-2 py-1 rounded text-slate-300 border border-white/5">0 events</span>
                     <button onclick="clearAllEvents()" class="text-slate-400 hover:text-rose-500 transition-colors p-1" title="Clear All Data">
                         <i class="ph-bold ph-trash text-lg"></i>
                     </button>
                 </div>
             </div>
-            <div id="timeline" class="flex-1 overflow-y-auto p-3 space-y-2 no-scrollbar bg-slate-800/50">
+            <div class="flex-1 overflow-y-auto p-3 space-y-2 no-scrollbar bg-black/20" id="timeline">
                 <!-- Timeline items injected here -->
                 <div class="text-center text-slate-500 text-sm mt-10 italic">Events will appear here...</div>
             </div>
@@ -232,13 +239,13 @@
     </main>
 
     <!-- GRAPH MODAL OVERLAY -->
-    <div id="graphModal" class="fixed inset-0 bg-slate-900/95 backdrop-blur-sm z-50 hidden flex-col">
-        <div class="flex justify-between items-center p-4 border-b border-slate-700">
+    <div id="graphModal" class="fixed inset-0 bg-black/95 backdrop-blur-xl z-[60] hidden flex-col">
+        <div class="flex justify-between items-center p-4 border-b border-white/10">
             <div>
                 <h2 class="text-2xl font-bold text-white flex items-center gap-2"><i class="ph-fill ph-chart-line-up text-blue-400"></i> Match Momentum & Events Graph</h2>
                 <p class="text-slate-400 text-sm mt-1">Shaded area represents a 5-minute rolling momentum score.</p>
             </div>
-            <button onclick="closeGraph()" class="bg-slate-700 hover:bg-rose-600 text-white p-2 rounded-full transition-colors">
+            <button onclick="closeGraph()" class="bg-white/10 hover:bg-rose-600 text-white p-2 rounded-full transition-colors border border-white/10">
                 <i class="ph-bold ph-x text-xl"></i>
             </button>
         </div>
@@ -247,15 +254,72 @@
         </div>
     </div>
 
-    <!-- PROTECTED JAVASCRIPT BLOCK -->
+    <!-- CUSTOM CONFIRMATION MODAL -->
+    <div id="customModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] hidden flex-col items-center justify-center p-4 transition-opacity">
+        <div class="bg-zinc-900 border border-white/10 p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center">
+            <div id="modalIcon" class="text-5xl mb-3 flex justify-center text-rose-500"><i class="ph-fill ph-warning-circle"></i></div>
+            <h3 id="modalTitle" class="text-xl font-bold text-white mb-2">Confirm</h3>
+            <p id="modalMessage" class="text-slate-400 text-sm mb-6">Are you sure?</p>
+            <div class="flex gap-3 justify-center">
+                <button id="modalCancelBtn" onclick="closeModal()" class="flex-1 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold transition-colors border border-white/10">Cancel</button>
+                <button id="modalActionBtn" class="flex-1 px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold transition-colors shadow-lg">Confirm</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        let timerInterval;
         let seconds = 0;
         let isRunning = false;
         let currentHalf = 1;
+        // Keeping the Hove RFC storage key to retain your specific data
         let events = JSON.parse(localStorage.getItem('hoveRfcStats')) || [];
         let wakeLock = null;
         let chartInstance = null;
+        let timerInterval;
+
+        // Modal Logic replacing alert() and confirm()
+        let modalCallback = null;
+
+        function showModal(title, message, callback, type = 'confirm') {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalMessage').innerText = message;
+            
+            const cancelBtn = document.getElementById('modalCancelBtn');
+            const actionBtn = document.getElementById('modalActionBtn');
+            const icon = document.getElementById('modalIcon');
+            
+            if (type === 'alert') {
+                cancelBtn.classList.add('hidden');
+                actionBtn.innerText = 'OK';
+                actionBtn.className = 'flex-1 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold transition-colors shadow-lg border border-blue-500/50';
+                icon.innerHTML = '<i class="ph-fill ph-info"></i>';
+                icon.className = 'text-5xl mb-3 flex justify-center text-blue-500';
+            } else {
+                cancelBtn.classList.remove('hidden');
+                actionBtn.innerText = 'Yes, Proceed';
+                actionBtn.className = 'flex-1 px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold transition-colors shadow-lg';
+                icon.innerHTML = '<i class="ph-fill ph-warning-circle"></i>';
+                icon.className = 'text-5xl mb-3 flex justify-center text-rose-500';
+            }
+
+            modalCallback = callback;
+            
+            actionBtn.onclick = () => {
+                closeModal();
+                if (modalCallback) modalCallback();
+            };
+
+            const modal = document.getElementById('customModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('customModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            modalCallback = null;
+        }
 
         async function requestWakeLock() {
             try {
@@ -290,7 +354,7 @@
             if (isRunning) {
                 clearInterval(timerInterval);
                 btn.innerHTML = '<i class="ph-fill ph-play"></i> START';
-                btn.className = "bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded font-bold flex items-center gap-1 transition-colors shadow-sm text-sm";
+                btn.className = "bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded font-bold flex items-center gap-1 transition-colors shadow-sm text-sm border border-emerald-500/50";
                 display.classList.remove('text-emerald-400', 'animate-pulse');
                 display.classList.add('text-red-500');
                 releaseWakeLock();
@@ -300,7 +364,7 @@
                     updateTimerDisplay();
                 }, 1000);
                 btn.innerHTML = '<i class="ph-fill ph-pause"></i> PAUSE';
-                btn.className = "bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded font-bold flex items-center gap-1 transition-colors shadow-sm text-sm";
+                btn.className = "bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded font-bold flex items-center gap-1 transition-colors shadow-sm text-sm border border-amber-500/50";
                 display.classList.remove('text-red-500');
                 display.classList.add('text-emerald-400', 'animate-pulse');
                 requestWakeLock();
@@ -309,20 +373,20 @@
         }
 
         function resetTimer() {
-            if (confirm("Are you sure you want to reset the timer?")) {
+            showModal("Reset Timer", "Are you sure you want to reset the match timer?", () => {
                 if (isRunning) toggleTimer();
                 seconds = 0;
                 updateTimerDisplay();
-            }
+            });
         }
 
         function setHalf(half) {
             currentHalf = half;
             if(half === 1) {
-                document.getElementById('btnH1').className = "px-3 py-1 rounded text-sm font-bold bg-blue-600 text-white transition-colors";
+                document.getElementById('btnH1').className = "px-3 py-1 rounded text-sm font-bold bg-blue-600/80 text-white transition-colors border border-blue-500/50";
                 document.getElementById('btnH2').className = "px-3 py-1 rounded text-sm font-bold text-slate-400 hover:text-white transition-colors";
             } else {
-                document.getElementById('btnH2').className = "px-3 py-1 rounded text-sm font-bold bg-blue-600 text-white transition-colors";
+                document.getElementById('btnH2').className = "px-3 py-1 rounded text-sm font-bold bg-blue-600/80 text-white transition-colors border border-blue-500/50";
                 document.getElementById('btnH1').className = "px-3 py-1 rounded text-sm font-bold text-slate-400 hover:text-white transition-colors";
             }
         }
@@ -369,17 +433,17 @@
 
         function clearAllEvents() {
             if (events.length === 0) return;
-            if (confirm("Are you sure you want to delete ALL logged events? This cannot be undone and resets the app for a new match.")) {
+            
+            showModal("Clear All Data", "Are you sure you want to delete ALL logged events? This cannot be undone.", () => {
                 events = [];
                 saveToLocal();
                 updateTimelineUI();
                 
-                // Also reset the timer and opponent name for the new game
                 if (isRunning) toggleTimer();
                 seconds = 0;
                 updateTimerDisplay();
                 document.getElementById('opponentName').value = '';
-            }
+            });
         }
 
         function saveToLocal() {
@@ -398,9 +462,9 @@
             }
 
             tl.innerHTML = events.map(e => `
-                <div class="bg-slate-700/50 p-2 rounded border-l-4 border-blue-500 flex justify-between items-center group text-sm animate-[fadeIn_0.2s_ease-out]">
+                <div class="bg-white/5 p-2 rounded border-l-4 border-blue-500 flex justify-between items-center group text-sm animate-[fadeIn_0.2s_ease-out] shadow-sm backdrop-blur">
                     <div>
-                        <span class="text-blue-300 font-mono text-xs font-bold mr-2">H${e.half} ${e.time}</span>
+                        <span class="text-blue-400 font-mono text-xs font-bold mr-2">H${e.half} ${e.time}</span>
                         <span class="font-semibold text-slate-100">${e.action}</span>
                     </div>
                     <button onclick="deleteEvent(${e.id})" class="text-slate-500 hover:text-rose-400 opacity-0 group-hover:opacity-100 transition-opacity p-1">
@@ -412,12 +476,11 @@
 
         function exportCSV() {
             if (events.length === 0) {
-                alert("No events to export yet.");
+                showModal("No Data", "There are no events to export yet.", null, 'alert');
                 return;
             }
 
-            let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += "Half,Match Time,Action,Real Time\n";
+            let csvContent = "Half,Match Time,Action,Real Time\n";
 
             const sortedEvents = [...events].sort((a, b) => {
                 if(a.half !== b.half) return a.half - b.half;
@@ -429,18 +492,25 @@
                 csvContent += row + "\n";
             });
 
-            const encodedUri = encodeURI(csvContent);
+            // Blob methodology ensures iPad/Safari allows the local file download
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            
             const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
+            link.setAttribute("href", url);
             
             let opponent = document.getElementById('opponentName').value.trim();
             if(!opponent) opponent = "Unknown";
             const dateStr = new Date().toISOString().split('T')[0];
             
+            // Named specifically for Hove RFC
             link.setAttribute("download", `Hove_RFC_vs_${opponent}_${dateStr}.csv`);
+            
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            
+            URL.revokeObjectURL(url);
         }
 
         function openGraph() {
@@ -454,12 +524,10 @@
             document.getElementById('graphModal').classList.remove('flex');
         }
 
-        // Helper to convert half and seconds into absolute match minutes
         const getAbsoluteMinutes = (e) => {
             return (e.seconds_raw / 60) + (e.half === 2 ? 40 : 0);
         };
 
-        // Calculates the mathematical weight of an event for the Momentum Shift algorithm
         const getEventWeight = (action) => {
             const a = action.toLowerCase();
             if (a === 'try' || a === 'try converted') return 10;
@@ -479,7 +547,7 @@
 
             if (a === 'handling error' || a === 'missed tackle' || a === 'scrum lost' || a === 'lineout lost') return -3;
 
-            return 0; // Default for unknowns/custom
+            return 0; 
         };
 
         function renderGraph() {
@@ -488,33 +556,31 @@
 
             if (events.length === 0) return;
 
-            // Map actions to Scatter Plot Categories (Y-Axis)
             const mapActionToCategory = (action) => {
                 const a = action.toLowerCase();
                 if (a.includes('try') || a.includes('card') || a.includes('pen goal')) {
-                    let color = '#10b981'; // Green
-                    if(a.includes('conceded') || a.includes('red')) color = '#ef4444'; // Red
-                    if(a.includes('yellow')) color = '#eab308'; // Yellow
+                    let color = '#4ade80'; 
+                    if(a.includes('conceded') || a.includes('red')) color = '#f87171'; 
+                    if(a.includes('yellow')) color = '#facc15'; 
                     return { y: 4, color: color, shape: 'triangle' };
                 }
                 if (a.includes('break') || a.includes('beaten') || a.includes('offload') || a.includes('kick') || a.includes('pot') || a.includes('noah')) {
-                    return { y: 3, color: '#3b82f6', shape: 'circle' }; // Attack Line
+                    return { y: 3, color: '#60a5fa', shape: 'circle' }; 
                 }
                 if (a.includes('tackle') || a.includes('turnover won') || a.includes('penalty won') || a.includes('nause') || a.includes('wolf') || a.includes('scout')) {
-                    if (a.includes('missed')) return { y: 0, color: '#f43f5e', shape: 'circle' };
-                    return { y: 2, color: '#8b5cf6', shape: 'circle' }; // Defence Line
+                    if (a.includes('missed')) return { y: 0, color: '#fb923c', shape: 'circle' };
+                    return { y: 2, color: '#c084fc', shape: 'circle' }; 
                 }
                 if (a.includes('scrum') || a.includes('lineout')) {
-                    const color = a.includes('won') ? '#f59e0b' : '#ef4444';
-                    return { y: 1, color: color, shape: 'rect' }; // Set Piece Line
+                    const color = a.includes('won') ? '#2dd4bf' : '#fb923c';
+                    return { y: 1, color: color, shape: 'rect' }; 
                 }
                 if (a.includes('error') || a.includes('lost') || a.includes('conceded')) {
-                    return { y: 0, color: '#f43f5e', shape: 'circle' }; // Errors Line
+                    return { y: 0, color: '#fb923c', shape: 'circle' }; 
                 }
                 return { y: 2.5, color: '#94a3b8', shape: 'circle' };
             };
 
-            // 1. Prepare Scatter Data (The discrete events)
             const scatterDataPoints = [...events].reverse().map(e => {
                 const style = mapActionToCategory(e.action);
                 return {
@@ -528,16 +594,13 @@
                 };
             });
 
-            // 2. Calculate 5-Minute Rolling Momentum
             const maxTimeMin = Math.max(80, Math.ceil(Math.max(...scatterDataPoints.map(d=>d.x))));
             const momentumData = [];
             
-            // For every minute of the match, sum the weights of events in the previous 5 mins
             for(let m = 0; m <= maxTimeMin; m++) {
                 let score = 0;
                 events.forEach(e => {
                     const evtTime = getAbsoluteMinutes(e);
-                    // If event happened in the last 5 minutes relative to 'm'
                     if(evtTime <= m && evtTime >= m - 5) {
                         score += getEventWeight(e.action);
                     }
@@ -551,7 +614,6 @@
             chartInstance = new Chart(ctx, {
                 data: {
                     datasets: [
-                        // Dataset 0: The Momentum Wave (Line Chart mapped to secondary Y-Axis)
                         {
                             type: 'line',
                             label: 'Attacking Threat',
@@ -559,15 +621,14 @@
                             yAxisID: 'yMomentum',
                             borderColor: 'rgba(255, 255, 255, 0.8)',
                             borderWidth: 2,
-                            tension: 0.4, // Smooth curves
-                            pointRadius: 0, // Hide points on the line
+                            tension: 0.4, 
+                            pointRadius: 0, 
                             fill: {
                                 target: 'origin',
-                                above: 'rgba(59, 130, 246, 0.75)', // Opta Blue for Hove Threat
-                                below: 'rgba(244, 63, 94, 0.75)'   // Opta Red for Opponent Threat
+                                above: 'rgba(59, 130, 246, 0.75)', 
+                                below: 'rgba(244, 63, 94, 0.75)'  
                             }
                         },
-                        // Dataset 1: The Event Taps (Scatter Chart mapped to primary Y-Axis)
                         {
                             type: 'scatter',
                             label: 'Match Events',
@@ -612,7 +673,6 @@
                             min: 0,
                             max: maxTimeMin
                         },
-                        // Primary Y-Axis (Left) - Used strictly for vertical positioning of the event categories
                         y: {
                             type: 'linear',
                             position: 'left',
@@ -626,19 +686,16 @@
                                     return labels[value] || '';
                                 }
                             },
-                            grid: { color: 'rgba(255,255,255,0.05)' } // Dimmed the scatter grid lines
+                            grid: { color: 'rgba(255,255,255,0.05)' } 
                         },
-                        // Secondary Y-Axis (Right) - Used strictly for scaling the Momentum curve height
                         yMomentum: {
                             type: 'linear',
                             position: 'right',
                             title: { display: true, text: 'Attacking Threat', color: '#cbd5e1' },
                             grid: { 
-                                // Creates a solid white baseline at zero, hides all other grid lines
                                 color: (ctx) => ctx.tick.value === 0 ? 'rgba(255, 255, 255, 1)' : 'transparent',
                                 lineWidth: (ctx) => ctx.tick.value === 0 ? 2 : 0
                             },
-                            // Keeps the graph centered vertically on zero
                             suggestedMin: -20,
                             suggestedMax: 20
                         }
@@ -647,7 +704,6 @@
             });
         }
 
-        // --- Initialization ---
         updateTimerDisplay();
         updateTimelineUI();
 
